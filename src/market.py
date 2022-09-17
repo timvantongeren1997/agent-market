@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from operator import attrgetter
 
 from model import Order, OrderSide, Trade
-from traders import Trader
 
 
 @dataclass
@@ -47,6 +46,10 @@ class OrderBook:
             self.asks.append(order)
         else:
             raise KeyError(f"Invalid order side {order.side}")
+
+    def clear_book(self):
+        self.bids = []
+        self.asks = []
 
 
 class MatchingEngine:
@@ -106,9 +109,7 @@ class MatchingEngine:
         return trades
 
 
-def clear_trades(players: dict[str, Trader], trades: list[Trade]):
-    for trade in trades:
-        players[trade.buyer_id].cash -= trade.price
-        players[trade.buyer_id].lots += trade.size
-        players[trade.seller_id].cash += trade.price
-        players[trade.seller_id].lots -= trade.size
+@dataclass
+class MarketState:
+    orderbook: OrderBook
+    true_price: float
