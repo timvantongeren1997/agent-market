@@ -68,10 +68,14 @@ class DumbTrader(Trader):
 
     def generate_orders(self, market_state: MarketState) -> list[Order]:
         random_side = OrderSide.bid if float(stats.norm.rvs()) > 0 else OrderSide.ask
+        market_mid = (
+            market_state.orderbook.get_best_bid().price
+            + market_state.orderbook.get_best_ask().price
+        ) / 2
         if random_side == OrderSide.bid:
-            order = self._offer_bid(market_state.true_price)
+            order = self._offer_bid(market_mid)
         elif random_side == OrderSide.ask:
-            order = self._offer_ask(market_state.true_price)
+            order = self._offer_ask(market_mid)
         else:
             raise KeyError(f"Invalid order side {random_side}")
         return [order]
