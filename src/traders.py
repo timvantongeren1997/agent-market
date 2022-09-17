@@ -12,6 +12,9 @@ class Trader(ABC):
     cash: Union[int, float]
     lots: Union[int, float]
 
+    def get_portfolio_value(self, true_price) -> float:
+        return self.cash + self.lots * true_price
+
     @abstractmethod
     def _offer_bid(self, *args, **kwargs) -> Order:
         pass

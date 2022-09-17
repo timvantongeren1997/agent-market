@@ -48,7 +48,7 @@ def main():
         clear_trades(players=player_id_mapping, trades=trades)
 
         # Calculating the size of our trader's portfolio
-        trader_portfolio.append(trader.cash + trader.lots * stock.price)
+        trader_portfolio.append(trader.get_portfolio_value(stock.price))
         if trader_portfolio[-1] < 0:
             print(f"Trader went bankrupt at time {t}")
             break
