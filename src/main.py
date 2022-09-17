@@ -195,6 +195,14 @@ class DumbTrader(Trader):
         return Order(price=ask, size=self.size, side=OrderSide.ask, sender_id=self.id)
 
 
+def clear_trades(players: dict[str, Trader], trades: list[Trade]):
+    for trade in trades:
+        players[trade.buyer_id].cash -= trade.price
+        players[trade.buyer_id].lots += trade.size
+        players[trade.seller_id].cash += trade.price
+        players[trade.seller_id].lots -= trade.size
+
+
 def main():
     stock = Underlying(base_price=100)
     market_maker = MarketMaker(markup_factor=0.01)
@@ -225,8 +233,13 @@ def main():
         # Trading
         print(f"{t}: Market is {order_book}")
         trades = matching_engine.match_orders(book=order_book)
-        if len(trades) > 0:
-            print(trades)
+
+        # Clearing
+        clear_trades(players=players, trades=trades)
+        trader_portfolio.append(trader.cash + trader.lots * stock.price)
+        if trader_portfolio[-1] < 0:
+            print(f"Trader went bankrupt at time {t}")
+            break
 
         # Market makers cleaning up
         order_book.cancel_order(mm_bid)
