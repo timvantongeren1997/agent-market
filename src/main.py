@@ -21,9 +21,13 @@ def main():
     order_book = OrderBook(bids=[], asks=[])
     matching_engine = MatchingEngine()
     players: list[Trader] = [
-        MarketMaker(markup_factor=0.01),
+        MarketMaker(
+            markup_factor=0.01
+        ),  # DumbTraders need at least 1 marketmaker in the market
+        DumbTrader(initial_cash=5000, initial_lots=100, trade_size=10),
+        DumbTrader(initial_cash=5000, initial_lots=100, trade_size=10),
     ]
-    trader = DumbTrader()
+    trader = DumbTrader(initial_cash=50000, initial_lots=80, trade_size=5)
     players.append(trader)
     player_id_mapping: dict[str, Trader] = {player.id: player for player in players}
     trader_portfolio = []

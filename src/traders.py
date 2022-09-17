@@ -54,12 +54,18 @@ class MarketMaker(Trader):
 
 
 class DumbTrader(Trader):
-    def __init__(self) -> None:
-        self.size = 5
-        self.vol = 25
+    def __init__(
+        self,
+        initial_cash: float,
+        initial_lots: float,
+        trade_size: int = 5,
+        volatility: float = 25,
+    ) -> None:
+        self.size = trade_size
+        self.vol = volatility
         self.id = str(uuid4())
-        self.cash = 50_000
-        self.lots = 100
+        self.cash = initial_cash
+        self.lots = initial_lots
 
     def _offer_bid(self, price: float) -> Order:
         bid = float(stats.norm.rvs(loc=price, scale=self.vol))
@@ -71,10 +77,17 @@ class DumbTrader(Trader):
 
     def generate_orders(self, market_state: MarketState) -> list[Order]:
         random_side = OrderSide.bid if float(stats.norm.rvs()) > 0 else OrderSide.ask
-        market_mid = (
-            market_state.orderbook.get_best_bid().price
-            + market_state.orderbook.get_best_ask().price
-        ) / 2
+        best_bid = market_state.orderbook.get_best_bid()
+        best_ask = market_state.orderbook.get_best_ask()
+        if best_bid and best_ask:
+            market_mid = (best_bid.price + best_ask.price) / 2
+        elif best_bid:
+            market_mid = best_bid.price
+        elif best_ask:
+            market_mid = best_ask.price
+        else:
+            # if there is no info we don't trade
+            return []
         if random_side == OrderSide.bid:
             order = self._offer_bid(market_mid)
         elif random_side == OrderSide.ask:

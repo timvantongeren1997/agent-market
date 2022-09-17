@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from operator import attrgetter
+from typing import Union
 
 from model import Order, OrderSide, Trade
 
@@ -23,10 +24,14 @@ class OrderBook:
         else:
             raise KeyError(f"Invalid order side {order.side}")
 
-    def get_best_bid(self) -> Order:
+    def get_best_bid(self) -> Union[Order, None]:
+        if len(self.bids) == 0:
+            return None
         return max(self.bids, key=attrgetter("price"))
 
-    def get_best_ask(self) -> Order:
+    def get_best_ask(self) -> Union[Order, None]:
+        if len(self.asks) == 0:
+            return None
         return min(self.asks, key=attrgetter("price"))
 
     def cancel_order(self, order: Order):
@@ -71,6 +76,10 @@ class MatchingEngine:
         # the last and thus best bid and ask from the arrays.
         sorted_bids = sorted(book.bids, key=lambda order: order.price, reverse=False)
         sorted_asks = sorted(book.asks, key=lambda order: order.price, reverse=True)
+
+        # No bids and/or asks so no trades
+        if len(sorted_bids) == 0 or len(sorted_asks) == 0:
+            return []
 
         best_bid = sorted_bids.pop()
         best_ask = sorted_asks.pop()
