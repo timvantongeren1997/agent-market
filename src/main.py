@@ -1,8 +1,10 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum, auto
+from typing import Union
 from uuid import uuid4
 from scipy import stats
-import time
+import matplotlib.pyplot as plt
 from operator import attrgetter
 
 
@@ -204,15 +206,20 @@ def clear_trades(players: dict[str, Trader], trades: list[Trade]):
 
 
 def main():
+    N = int(1e5)
     stock = Underlying(base_price=100)
     market_maker = MarketMaker(markup_factor=0.01)
     trader = DumbTrader()
     order_book = OrderBook(bids=[], asks=[])
     matching_engine = MatchingEngine()
-    for t in range(1, 101):
+    players: dict[str, Trader] = {
+        trader.id: trader,
+        market_maker.id: market_maker,
+    }
+    trader_portfolio = []
+    for t in range(1, N + 1):
         # Setup
         stock.simulate_one_step()
-        print(f"{t}: True price is {stock.price}")
 
         # Market making
         mm_bid = market_maker.offer_bid(stock.price)
@@ -231,7 +238,6 @@ def main():
         order_book.add_order_to_book(trader_order)
 
         # Trading
-        print(f"{t}: Market is {order_book}")
         trades = matching_engine.match_orders(book=order_book)
 
         # Clearing
@@ -247,7 +253,9 @@ def main():
 
         # Dumb trader also cleaning up
         order_book.cancel_order(trader_order)
-        time.sleep(0.1)
+
+    plt.plot(range(1, t + 1), trader_portfolio)
+    plt.show()
 
 
 if __name__ == "__main__":
