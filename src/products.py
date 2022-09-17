@@ -1,7 +1,7 @@
 from scipy import stats
 
 
-class Underlying:
+class Stock:
     def __init__(self, base_price: float) -> None:
         self.price = base_price
 

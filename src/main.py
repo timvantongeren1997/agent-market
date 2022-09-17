@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from products import Underlying
+from products import Stock
 from traders import Trader, MarketMaker, DumbTrader
 from market import MarketState, MatchingEngine, OrderBook
 from model import Trade
@@ -17,7 +17,7 @@ def clear_trades(players: dict[str, Trader], trades: list[Trade]):
 
 def main():
     N = int(1e5)
-    stock = Underlying(base_price=100)
+    stock = Stock(base_price=100)
     order_book = OrderBook(bids=[], asks=[])
     matching_engine = MatchingEngine()
     players: list[Trader] = [
